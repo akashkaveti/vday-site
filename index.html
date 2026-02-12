@@ -281,11 +281,17 @@
         </div>
 
         <div class="question-container active" id="q1">
+            <div class="love-meter">
+                <div class="love-meter-text">Love Level: <span id="loveLevel1">25%</span> 💕</div>
+                <div class="love-meter-bar">
+                    <div class="love-meter-fill" id="loveFill1" style="width: 25%"></div>
+                </div>
+            </div>
             <h2>What's your favorite thing about me? 💕</h2>
             <div class="options">
-                <button onclick="nextQuestion(2)">Everything!</button>
-                <button onclick="nextQuestion(2)">Your smile</button>
-                <button onclick="nextQuestion(2)">Your kindness</button>
+                <button onclick="nextQuestion(2, 40)">Everything!</button>
+                <button onclick="nextQuestion(2, 35)">Your smile</button>
+                <button onclick="nextQuestion(2, 45)">Your kindness</button>
             </div>
         </div>
 
