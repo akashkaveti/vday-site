@@ -30,6 +30,50 @@
             width: 100%;
         }
 
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #ff6b6b;
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+
+        .love-meter {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 107, 107, 0.3);
+            border-radius: 15px;
+            display: block;
+        }
+
+        .love-meter-text {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .love-meter-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .love-meter-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb);
+            transition: width 0.8s ease;
+            border-radius: 10px;
+        }
+
         .question-container {
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(10px);
@@ -114,6 +158,24 @@
             transition: all 0.3s ease;
         }
 
+        .no-btn:hover {
+            background: #ff6b6b !important;
+            color: white !important;
+            transform: rotate(360deg) scale(0.8);
+        }
+
+        @keyframes rainbow {
+            0% { background: #ff6b6b; }
+            25% { background: #feca57; }
+            50% { background: #48dbfb; }
+            75% { background: #ff9ff3; }
+            100% { background: #ff6b6b; }
+        }
+
+        .no-btn.rainbow {
+            animation: rainbow 1s infinite;
+        }
+
         .celebration {
             display: none;
             text-align: center;
@@ -161,6 +223,20 @@
             pointer-events: none;
         }
 
+        .heart-confetti {
+            position: fixed;
+            font-size: 30px;
+            animation: heartConfettiFall 4s ease-out forwards;
+            pointer-events: none;
+        }
+
+        .star-confetti {
+            position: fixed;
+            font-size: 25px;
+            animation: starConfettiFall 3.5s ease-out forwards;
+            pointer-events: none;
+        }
+
         @keyframes confettiFall {
             0% {
                 transform: translateY(-100vh) rotate(0deg);
@@ -171,10 +247,39 @@
                 opacity: 0;
             }
         }
+
+        @keyframes heartConfettiFall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg) scale(0);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(50vh) rotate(180deg) scale(1);
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg) scale(0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes starConfettiFall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(1080deg);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 25%"></div>
+        </div>
+
         <div class="question-container active" id="q1">
             <h2>What's your favorite thing about me? 💕</h2>
             <div class="options">
@@ -185,24 +290,42 @@
         </div>
 
         <div class="question-container" id="q2">
+            <div class="love-meter">
+                <div class="love-meter-text">Love Level: <span id="loveLevel2">50%</span> 💕</div>
+                <div class="love-meter-bar">
+                    <div class="love-meter-fill" id="loveFill2" style="width: 50%"></div>
+                </div>
+            </div>
             <h2>What's your dream date? 💭</h2>
             <div class="options">
-                <button onclick="nextQuestion(3)">Dinner and a movie</button>
-                <button onclick="nextQuestion(3)">Beach sunset</button>
-                <button onclick="nextQuestion(3)">Any day with you!</button>
+                <button onclick="nextQuestion(3, 60)">Dinner and a movie</button>
+                <button onclick="nextQuestion(3, 70)">Beach sunset</button>
+                <button onclick="nextQuestion(3, 80)">Any day with you!</button>
             </div>
         </div>
 
         <div class="question-container" id="q3">
+            <div class="love-meter">
+                <div class="love-meter-text">Love Level: <span id="loveLevel3">70%</span> 💖</div>
+                <div class="love-meter-bar">
+                    <div class="love-meter-fill" id="loveFill3" style="width: 70%"></div>
+                </div>
+            </div>
             <h2>Would you choose me again? 💖</h2>
             <div class="options">
-                <button onclick="nextQuestion(4)">Absolutely!</button>
-                <button onclick="nextQuestion(4)">In a heartbeat</button>
-                <button onclick="nextQuestion(4)">Every time!</button>
+                <button onclick="nextQuestion(4, 85)">Absolutely!</button>
+                <button onclick="nextQuestion(4, 90)">In a heartbeat</button>
+                <button onclick="nextQuestion(4, 100)">Every time!</button>
             </div>
         </div>
 
         <div class="question-container" id="q4">
+            <div class="love-meter">
+                <div class="love-meter-text">Love Level: <span id="loveLevel4">100%</span> 💖💖</div>
+                <div class="love-meter-bar">
+                    <div class="love-meter-fill" id="loveFill4" style="width: 100%"></div>
+                </div>
+            </div>
             <h2>Will you be my Valentine? 💕</h2>
             <div class="valentine-container">
                 <div class="valentine-buttons">
@@ -221,15 +344,104 @@
     </div>
 
     <script>
-        function nextQuestion(num) {
+        let audioContext;
+        let noButtonHoverCount = 0;
+
+        function playSound(type) {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            if (type === 'pop') {
+                oscillator.frequency.value = 800 - Math.random() * 200;
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } else if (type === 'success') {
+                oscillator.frequency.value = 523.25;
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.2);
+
+                setTimeout(() => {
+                    const osc2 = audioContext.createOscillator();
+                    const gain2 = audioContext.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(audioContext.destination);
+                    osc2.frequency.value = 659.25;
+                    osc2.type = 'sine';
+                    gain2.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    osc2.start(audioContext.currentTime);
+                    osc2.stop(audioContext.currentTime + 0.2);
+                }, 150);
+
+                setTimeout(() => {
+                    const osc3 = audioContext.createOscillator();
+                    const gain3 = audioContext.createGain();
+                    osc3.connect(gain3);
+                    gain3.connect(audioContext.destination);
+                    osc3.frequency.value = 783.99;
+                    osc3.type = 'sine';
+                    gain3.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    osc3.start(audioContext.currentTime);
+                    osc3.stop(audioContext.currentTime + 0.3);
+                }, 300);
+            } else if (type === 'noButton') {
+                oscillator.frequency.value = 200  + Math.random() * 400;
+                oscillator.type = 'sawtooth';
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.15);
+            }
+        }
+
+        function nextQuestion(num, loveLevel) {
+            playSound('pop');
             const containers = document.querySelectorAll('.question-container');
             containers.forEach(c => c.classList.remove('active'));
             document.getElementById('q' + num).classList.add('active');
+
+            const progressFill = document.getElementById('progressFill');
+            const progress = (num / 4) * 100;
+            progressFill.style.width = progress + '%';
+
+            if (loveLevel) {
+                loveMeterUpdate(loveLevel);
+            }
         }
 
+        function loveMeterUpdate(level) {
+            const levelElement = document.getElementById('loveLevel' + currentQuestion);
+            const fillElement = document.getElementById('loveFill' + currentQuestion);
+            
+            if (levelElement) levelElement.textContent = level + '%';
+            if (fillElement) fillElement.style.width = level + '%';
+        }
+
+        let currentQuestion = 1;
+
+        document.querySelectorAll('.question-container').forEach((container, index) => {
+            container.addEventListener('click', () => {
+                currentQuestion = index + 1;
+            });
+        });
+
         function runAway() {
+            playSound('noButton');
             const noBtn = document.getElementById('noBtn');
             const container = document.querySelector('.container');
+            
+            noButtonHoverCount++;
             
             const maxX = container.offsetWidth - noBtn.offsetWidth;
             const maxY = container.offsetHeight - noBtn.offsetHeight;
@@ -241,24 +453,69 @@
             noBtn.style.left = newX + 'px';
             noBtn.style.top = newY + 'px';
             
-            noBtn.textContent = ['Try again!', 'Nice try!', 'You really think so?', 'Not happening!', 'Can\'t escape!'][Math.floor(Math.random() * 5)];
+            noBtn.classList.add('rainbow');
+            noBtn.textContent = ['Try again!', 'Nice try!', 'You really think so?', 'Not happening!', 'Can\'t escape!', 'Why would you?', 'Still no...', 'Seriously?', 'Forever chasing!'][Math.floor(Math.random() * 9)];
+            
+            if (noButtonHoverCount > 3) {
+                noBtn.style.transform = `rotate(${Math.random() * 720}deg) scale(${0.5 + Math.random() * 0.5})`;
+            }
         }
 
         function celebrate() {
+            playSound('success');
             document.querySelectorAll('.question-container').forEach(c => c.classList.remove('active'));
             document.getElementById('celebration').classList.add('active');
             
-            for (let i = 0; i < 100; i++) {
-                setTimeout(() => createConfetti(), i * 50);
+            for (let i = 0; i < 200; i++) {
+                setTimeout(() => {
+                    const type = Math.random();
+                    if (type < 0.4) createConfetti();
+                    else if (type < 0.7) createHeartConfetti();
+                    else createStarConfetti();
+                }, i * 30);
             }
+
+            setInterval(() => {
+                const type = Math.random();
+                if (type < 0.4) createConfetti();
+                else if (type < 0.7) createHeartConfetti();
+                else createStarConfetti();
+            }, 500);
         }
 
         function createConfetti() {
             const confetti = document.createElement('div');
             confetti.className = 'confetti';
             confetti.style.left = Math.random() * 100 + 'vw';
-            confetti.style.background = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff'][Math.floor(Math.random() * 5)];
+            confetti.style.background = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#ff7675', '#a29bfe'][Math.floor(Math.random() * 7)];
             confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            confetti.style.width = (Math.random() * 10 + 5) + 'px';
+            confetti.style.height = (Math.random() * 10 + 5) + 'px';
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => confetti.remove(), 5000);
+        }
+
+        function createHeartConfetti() {
+            const confetti = document.createElement('div');
+            confetti.className = 'heart-confetti';
+            confetti.innerHTML = ['💖', '💕', '❤️', '💗', '💓'][Math.floor(Math.random() * 5)];
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.fontSize = (Math.random() * 20 + 20) + 'px';
+            confetti.style.animationDuration = (Math.random() * 2 + 3) + 's';
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => confetti.remove(), 5000);
+        }
+
+        function createStarConfetti() {
+            const confetti = document.createElement('div');
+            confetti.className = 'star-confetti';
+            confetti.innerHTML = ['⭐', '✨', '🌟', '💫'][Math.floor(Math.random() * 4)];
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.fontSize = (Math.random() * 15 + 15) + 'px';
+            confetti.style.animationDuration = (Math.random() * 2 + 2.5) + 's';
+            confetti.style.color = ['#feca57', '#48dbfb', '#ff9ff3', '#ff7675'][Math.floor(Math.random() * 4)];
             document.body.appendChild(confetti);
             
             setTimeout(() => confetti.remove(), 5000);
