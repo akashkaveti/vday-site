@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Special Questions ❤️</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            text-align: center;
+            color: white;
+            z-index: 10;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .question-container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        .question-container.active {
+            display: block;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            font-size: 2em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            background: white;
+            color: #764ba2;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .valentine-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .valentine-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .yes-btn {
+            background: #ff6b6b;
+            color: white;
+            font-size: 1.3em;
+            padding: 20px 50px;
+        }
+
+        .no-btn {
+            background: white;
+            color: #764ba2;
+            font-size: 1.3em;
+            padding: 20px 50px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .celebration {
+            display: none;
+            text-align: center;
+        }
+
+        .celebration.active {
+            display: block;
+        }
+
+        .big-heart {
+            font-size: 150px;
+            animation: heartBeat 0.8s ease-in-out infinite;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        .floating-heart {
+            position: fixed;
+            font-size: 24px;
+            animation: floatUp 8s ease-in infinite;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ff6b6b;
+            animation: confettiFall 3s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="question-container active" id="q1">
+            <h2>What's your favorite thing about me? 💕</h2>
+            <div class="options">
+                <button onclick="nextQuestion(2)">Everything!</button>
+                <button onclick="nextQuestion(2)">Your smile</button>
+                <button onclick="nextQuestion(2)">Your kindness</button>
+            </div>
+        </div>
+
+        <div class="question-container" id="q2">
+            <h2>What's your dream date? 💭</h2>
+            <div class="options">
+                <button onclick="nextQuestion(3)">Dinner and a movie</button>
+                <button onclick="nextQuestion(3)">Beach sunset</button>
+                <button onclick="nextQuestion(3)">Any day with you!</button>
+            </div>
+        </div>
+
+        <div class="question-container" id="q3">
+            <h2>Would you choose me again? 💖</h2>
+            <div class="options">
+                <button onclick="nextQuestion(4)">Absolutely!</button>
+                <button onclick="nextQuestion(4)">In a heartbeat</button>
+                <button onclick="nextQuestion(4)">Every time!</button>
+            </div>
+        </div>
+
+        <div class="question-container" id="q4">
+            <h2>Will you be my Valentine? 💕</h2>
+            <div class="valentine-container">
+                <div class="valentine-buttons">
+                    <button class="yes-btn" onclick="celebrate()">YES! ❤️</button>
+                    <button class="no-btn" id="noBtn" onmouseover="runAway()">No</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container celebration" id="celebration">
+            <div class="big-heart">❤️</div>
+            <h2>I love you! 💕</h2>
+            <p>Happy Valentine's Day to my favorite person in the world!</p>
+            <p>You make every day special.</p>
+        </div>
+    </div>
+
+    <script>
+        function nextQuestion(num) {
+            const containers = document.querySelectorAll('.question-container');
+            containers.forEach(c => c.classList.remove('active'));
+            document.getElementById('q' + num).classList.add('active');
+        }
+
+        function runAway() {
+            const noBtn = document.getElementById('noBtn');
+            const container = document.querySelector('.container');
+            
+            const maxX = container.offsetWidth - noBtn.offsetWidth;
+            const maxY = container.offsetHeight - noBtn.offsetHeight;
+            
+            let newX = Math.random() * maxX;
+            let newY = Math.random() * maxY;
+            
+            noBtn.style.position = 'absolute';
+            noBtn.style.left = newX + 'px';
+            noBtn.style.top = newY + 'px';
+            
+            noBtn.textContent = ['Try again!', 'Nice try!', 'You really think so?', 'Not happening!', 'Can\'t escape!'][Math.floor(Math.random() * 5)];
+        }
+
+        function celebrate() {
+            document.querySelectorAll('.question-container').forEach(c => c.classList.remove('active'));
+            document.getElementById('celebration').classList.add('active');
+            
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => createConfetti(), i * 50);
+            }
+        }
+
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.background = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff'][Math.floor(Math.random() * 5)];
+            confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => confetti.remove(), 5000);
+        }
+
+        function createFloatingHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'floating-heart';
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 4 + 6) + 's';
+            heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
+            document.body.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 10000);
+        }
+
+        for (let i = 0; i < 15; i++) {
+            setTimeout(createFloatingHeart, i * 300);
+        }
+
+        setInterval(createFloatingHeart, 1000);
+    </script>
+</body>
+</html>
